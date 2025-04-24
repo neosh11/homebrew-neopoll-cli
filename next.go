@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -18,7 +19,7 @@ var nextCmd = &cobra.Command{
     RunE:  nextPoll,
 }
 
-func init() {
+func init()     {
     RootCmd.AddCommand(nextCmd)
 }
 
@@ -60,6 +61,11 @@ func nextPoll(cmd *cobra.Command, args []string) error {
 		Data     string `json:"data"`
     }
     if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+
+        // print the wrong body
+        bodyBytes, _ := ioutil.ReadAll(resp.Body)
+        fmt.Printf("Error decoding response: %s\n", string(bodyBytes))
+        
         return err
     }
 

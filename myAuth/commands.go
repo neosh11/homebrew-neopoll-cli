@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/neosh11/survey/config"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
@@ -27,6 +28,11 @@ var (
 	flagEmail    string
 	flagPassword string
 	flagToken    string
+
+	// Colors
+	promptColor  = color.New(color.FgCyan, color.Bold)
+	successColor = color.New(color.FgGreen)
+	warnColor    = color.New(color.FgYellow)
 )
 
 func init() {
@@ -40,7 +46,7 @@ func promptEmail() error {
 	if flagEmail != "" {
 		return nil
 	}
-	fmt.Print("Email: ")
+	promptColor.Print("Email: ")
 	inp, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil {
 		return err
@@ -56,7 +62,7 @@ func promptPassword() error {
 	if flagPassword != "" {
 		return nil
 	}
-	fmt.Print("Password: ")
+	promptColor.Print("Password: ")
 	b, err := term.ReadPassword(int(os.Stdin.Fd()))
 	fmt.Println()
 	if err != nil {
@@ -73,7 +79,7 @@ func promptToken() error {
 	if flagToken != "" {
 		return nil
 	}
-	fmt.Print("Enter OTP: ")
+	promptColor.Print("Enter OTP: ")
 	inp, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil {
 		return err
@@ -134,7 +140,7 @@ func runLogin(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	fmt.Println(res.Message)
-	fmt.Printf("✔ session saved to %s\n", path)
+	successColor.Println("✔ session saved to %s\n", path)
 	return nil
 }
 
@@ -185,7 +191,7 @@ func runRefreshToken(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	fmt.Println(res.Message)
-	fmt.Printf("✔ session refreshed at %s\n", path)
+	successColor.Println("✔ session refreshed at %s\n", path)
 	return nil
 }
 
@@ -196,11 +202,11 @@ func runLogout(cmd *cobra.Command, args []string) error {
 	}
 	if err := os.Remove(path); err != nil {
 		if os.IsNotExist(err) {
-			fmt.Println("⚠ no session found")
+			warnColor.Println("⚠ no session found")
 			return nil
 		}
 		return err
 	}
-	fmt.Println("✔ logged out, session deleted")
+	successColor.Println("✔ logged out, session deleted")
 	return nil
 }

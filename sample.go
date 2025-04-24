@@ -49,7 +49,7 @@ func generateSample(cmd *cobra.Command, args []string) error {
 		filename = sampleOutput
 	} else {
 		timestamp := time.Now().Format("20060102150405")
-		filename = fmt.Sprintf("sample-%s.json", timestamp)
+		filename = fmt.Sprintf("neopoll-%s.json", timestamp)
 	}
 
 	if err := os.WriteFile(filename, b, 0600); err != nil {
@@ -60,6 +60,7 @@ func generateSample(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get absolute path: %v", err)
 	}
-	fmt.Printf("Sample JSON generated at %s\n", abs)
+	fmt.Print("Sample JSON generated at: ")
+	SuccessColor.Println(abs)
 	return nil
 }
