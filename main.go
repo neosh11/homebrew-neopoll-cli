@@ -8,7 +8,52 @@ import (
 	"github.com/neosh11/survey/myAuth"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"golang.org/x/term"
 )
+
+var logoAscii = `
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*++++%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%     %%-%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@@@%%    %@  %%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%@     @%   %@   %%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%@     @%  %@   %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%@     @% %@   %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%     %@     @%%@   %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%@     %@     @%@   % %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%@     %%%    %@   %  %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%@    %% %%  %@   %   %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%@    %   %%%@   %    %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%@    @%   %@   %     %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%@     %%      %      %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%@     %%%   .%%      %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%@     %@-%:*%@%      %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%@     %@  %% @%      %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%     %@     %%      %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %@ %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %@ %%%%%%%%%%%%%
+%%%%%%%%%%%%% #  %%%%   %%%%   %%% %  %%%%   %%% %@ %%%%%%%%%%%%%
+%%%%%%%%%%%%%     %%  %  %%  -  %%     %%  -  %% %@ %%%%%%%%%%%%%
+%%%%%%%%%%%%%  %% #% %%% %  %%% %% %%% *@ %%%  % %@ %%%%%%%%%%%%%
+%%%%%%%%%%%%% *%% #*     @  %%% #% %%%  : %%%  % %@ %%%%%%%%%%%%%
+%%%%%%%%%%%%% *%% #@ %%%%%  %%% %% %%%  @ %%%  % %@ %%%%%%%%%%%%%
+%%%%%%%%%%%%% *%% #%  %+ %%  @  %%  *  %%  @  %% %@ %%%%%%%%%%%%%
+%%%%%%%%%%%%% +%% #%%   %%%%   %%% @  %%%%   %%% %@ %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+`
 
 var (
 	// define your palettes
@@ -23,11 +68,66 @@ var (
 	WarnColor    = color.New(color.FgYellow)
 )
 
+var completionCmd = &cobra.Command{
+	Use:   "completion [bash|zsh|fish|powershell]",
+	Short: "Generate shell completion script",
+	Long: `To load completions:
+
+Bash:
+
+  $ source <(neopoll completion bash)
+
+  # To load completions for each session, execute once:
+  # Linux:
+  $ neopoll completion bash > /etc/bash_completion.d/neopoll
+  # macOS:
+  $ neopoll completion bash > /usr/local/etc/bash_completion.d/neopoll
+
+Zsh:
+
+  # If shell completion is not already enabled in your environment,
+  # you will need to enable it. You can execute the following once:
+
+  $ echo "autoload -U compinit; compinit" >> ~/.zshrc
+
+  $ neopoll completion zsh > "${fpath[1]}/_neopoll"
+
+Fish:
+
+  $ neopoll completion fish | source
+
+  # To load completions for each session, execute once:
+  $ neopoll completion fish > ~/.config/fish/completions/neopoll.fish
+
+PowerShell:
+
+  PS> neopoll completion powershell | Out-String | Invoke-Expression
+
+  # To load completions for every new session, run:
+  PS> neopoll completion powershell > neopoll.ps1
+  # and source this file from your PowerShell profile.
+`,
+	DisableFlagsInUseLine: true,
+	ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
+	Args:                  cobra.ExactValidArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		switch args[0] {
+		case "bash":
+			_ = cmd.Root().GenBashCompletion(os.Stdout)
+		case "zsh":
+			_ = cmd.Root().GenZshCompletion(os.Stdout)
+		case "fish":
+			_ = cmd.Root().GenFishCompletion(os.Stdout, true)
+		case "powershell":
+			_ = cmd.Root().GenPowerShellCompletion(os.Stdout)
+		}
+	},
+}
+
 var RootCmd = &cobra.Command{
 	Use:   "neopoll",
 	Short: "neopoll is a CLI poll application. Designed with simplicity in mind.",
 	Long: `neopoll is a CLI poll application. Designed with simplicity in mind.
-
 Quickstart:
 
   1. Authenticate
@@ -56,8 +156,9 @@ func init() {
 		myAuth.RefreshTokenCmd,
 		myAuth.LogoutCmd,
 	)
-
+	rootCmd.AddCommand(completionCmd)
 	RootCmd.SetHelpFunc(prettyHelp)
+
 }
 func main() {
 	if err := RootCmd.Execute(); err != nil {
@@ -69,6 +170,11 @@ func main() {
 func prettyHelp(cmd *cobra.Command, args []string) {
 	header.Println("\nUSAGE:")
 	cmdName.Printf("  %s\n\n", cmd.UseLine())
+
+	width, _, err := term.GetSize(int(os.Stdout.Fd()))
+	if err == nil && width >= 66 {
+		WarnColor.Println(logoAscii)
+	}
 
 	header.Println("COMMANDS:")
 	for _, c := range cmd.Commands() {
