@@ -4,7 +4,7 @@ A simple polling CLI app
 ## Installation
 
 ```
-brew tap neosh11/neopoll-cli git@github.com:neosh11/neopoll-cli.git
+brew tap neosh11/neopoll-cli
 brew install neosh11/neopoll-cli/neopoll
 ``
 
