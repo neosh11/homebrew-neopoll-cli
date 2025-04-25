@@ -156,7 +156,7 @@ func init() {
 		myAuth.RefreshTokenCmd,
 		myAuth.LogoutCmd,
 	)
-	rootCmd.AddCommand(completionCmd)
+	RootCmd.AddCommand(completionCmd)
 	RootCmd.SetHelpFunc(prettyHelp)
 
 }
