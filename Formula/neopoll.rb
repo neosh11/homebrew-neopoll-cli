@@ -1,8 +1,8 @@
 class Neopoll < Formula
     desc     "CLI poll application"
     homepage "https://github.com/neosh11/homebrew-neopoll-cli"
-    url      "https://github.com/neosh11/homebrew-neopoll-cli/archive/refs/tags/v0.1.4.tar.gz"
-    sha256   "97ee6213918916fce768eeb14a5904e203be261cbcb2a093672ea6f0f5e709c6"
+    url      "https://github.com/neosh11/homebrew-neopoll-cli/archive/refs/tags/v0.1.5.tar.gz"
+    sha256   "57fdb58f9f412951f20f8285ed04b14493f3d70fb68d10c56a525b1e9cd9e5ac"
     license  "MIT"
     depends_on "go" => :build
   
