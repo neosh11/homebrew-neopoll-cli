@@ -14,7 +14,7 @@ import (
 )
 
 var purchaseCreditsCmd = &cobra.Command{
-	Use:   "buy-credits",
+	Use:   "credits-buy",
 	Short: "Buy more credits for your account",
 	RunE:  purchaseCredits,
 }
