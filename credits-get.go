@@ -13,7 +13,7 @@ import (
 )
 
 var getCreditsCmd = &cobra.Command{
-	Use:   "get-credits",
+	Use:   "credits-get",
 	Short: "Get credits for the current user",
 	RunE:  getCredits,
 }
