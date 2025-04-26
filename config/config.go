@@ -9,5 +9,5 @@ var BaseURL = func() string {
 	if v := os.Getenv("NEOPOLL_BASE_URL"); v != "" {
 		return v
 	}
-	return "https://durable-object-starter.neosh11.workers.dev"
+	return "https://api-poll.lets.lol"
 }()
